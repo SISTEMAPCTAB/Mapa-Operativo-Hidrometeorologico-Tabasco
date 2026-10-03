@@ -4,6 +4,7 @@ window.MAP_CONFIG={
     levels:"/Agente-Hidrometeorologico-Cloud/data/niveles/Ultimo_Corte/ultimo_resumen.json",
     rainConagua:"/Agente-Hidrometeorologico-Cloud/data/niveles/Lluvia_CONAGUA/ultimo_corte.json",
     climaConagua:"/Agente-Hidrometeorologico-Cloud/data/niveles/Clima_CONAGUA/ultimo_corte.json",
+    sihRain:"/Agente-Hidrometeorologico-Cloud/data/sih_lluvia/latest.json",
     weather:"/Agente-Hidrometeorologico-Cloud/data/weatherlink/latest.json",
     weatherExtra:"/Agente-Hidrometeorologico-Cloud/data/weatherlink/extra_latest.json",
     fuente1:"/Agente-Hidrometeorologico-Cloud/data/latest/FUENTE1.txt",
