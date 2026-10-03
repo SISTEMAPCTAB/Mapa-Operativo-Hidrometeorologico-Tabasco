@@ -328,6 +328,17 @@ async function load(){
    if(Date.parse(r.fecha_hora_mensaje||"")!==latestBulletin||seenConagua.has(norm(r.estacion)))continue;
    rains.push({name:r.estacion,source:"CONAGUA Tabasco · boletín",mm:+r.lluvia_24h_mm,time:r.fecha_hora_mensaje,period:"24 h del boletín",location:"Tabasco"});
  }
+ // SIH independiente: sólo estaciones no representadas por CONAGUA actual.
+ const occupied=new Set(rains.filter(x=>/CONAGUA/.test(x.source)).map(x=>norm(x.name).replace(/\s*\([^)]*\)/g,"")));
+ for(const r of sihRain?.estaciones_tabasco||[]){
+   const mm=Number(r.precipitacion_24h_mm);
+   if(!Number.isFinite(mm)||mm<0)continue;
+   const name=String(r.estacion||"").replace(/,\s*Tab\..*$/i,"").trim();
+   const key=norm(name);
+   if(!name||occupied.has(key))continue;
+   rains.push({name,source:"SIH-CONAGUA",mm,time:sihRain.fecha_fuente,period:sihRain.periodo_fuente||"24 h · fecha SIH",location:"Tabasco"});
+   occupied.add(key);
+ }
  for(const r of [...(weather?.stations||[]),...(extra?.stations||[])]){
    const mm=r.accumulations_mm?.["24"];
    if(finite(mm))rains.push({name:r.nombre,source:"WeatherLink",mm:+mm,time:r.observed_utc,period:"24 h",location:r.ubicacion||""});
