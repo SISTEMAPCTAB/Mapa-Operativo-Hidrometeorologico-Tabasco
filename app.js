@@ -297,8 +297,8 @@ function insRainRows(doc){
 
 async function load(){
  document.getElementById("statusText").textContent="Actualizando…";
- const [levels,rainCon,climaCon,weather,extra,f1,insRain,insLevels,publicSources,mapping,geojson]=await Promise.all([
-   fetchJSON(C.urls.levels),fetchJSON(C.urls.rainConagua),fetchJSON(C.urls.climaConagua),fetchJSON(C.urls.weather),fetchJSON(C.urls.weatherExtra),
+ const [levels,rainCon,climaCon,sihRain,weather,extra,f1,insRain,insLevels,publicSources,mapping,geojson]=await Promise.all([
+   fetchJSON(C.urls.levels),fetchJSON(C.urls.rainConagua),fetchJSON(C.urls.climaConagua),fetchJSON(C.urls.sihRain),fetchJSON(C.urls.weather),fetchJSON(C.urls.weatherExtra),
    fetchText(C.urls.fuente1),fetchJSON(C.urls.insivumehRain),fetchJSON(C.urls.insivumehLevels),fetchJSON(C.urls.publicSources),fetchJSON(C.urls.forecastMapping),fetchJSON(C.urls.forecastGeojson)
  ]);
  // No borrar precipitaciones previamente dibujadas ante un fallo transitorio
