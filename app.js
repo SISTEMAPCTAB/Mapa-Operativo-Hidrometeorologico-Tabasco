@@ -74,6 +74,11 @@ const fmt=(v,n=2)=>finite(v)?Number(v).toFixed(n):"s/d";
 const fetchJSON=async u=>{try{const r=await fetch(u+"?v="+Date.now(),{cache:"no-store"});return r.ok?await r.json():null}catch{return null}};
 const fetchText=async u=>{try{const r=await fetch(u+"?v="+Date.now(),{cache:"no-store"});return r.ok?await r.text():""}catch{return ""}};
 function coord(name){const hit=Object.entries(C.stations).find(([k])=>norm(k)===norm(name));return hit?hit[1]:null}
+function rainCoord(r){
+ const lat=Number(r?.latitude),lon=Number(r?.longitude);
+ if(Number.isFinite(lat)&&Number.isFinite(lon)&&lat>=-90&&lat<=90&&lon>=-180&&lon<=180)return[lat,lon];
+ return coord(r?.name);
+}
 
 function rainClass(mm){
   if(!finite(mm))return{level:-1,label:"Sin dato",color:"#888"};
@@ -341,7 +346,7 @@ async function load(){
  }
  for(const r of [...(weather?.stations||[]),...(extra?.stations||[])]){
    const mm=r.accumulations_mm?.["24"];
-   if(finite(mm))rains.push({name:r.nombre,source:"WeatherLink",mm:+mm,time:r.observed_utc,period:"24 h",location:r.ubicacion||""});
+   if(finite(mm))rains.push({name:r.nombre,source:"WeatherLink",mm:+mm,time:r.observed_utc,period:"24 h",location:r.ubicacion||"",latitude:r.latitude,longitude:r.longitude});
  }
  for(const r of insRain?.estaciones||[]){
    if(finite(r.precipitacion_24h_mm))rains.push({name:r.estacion,source:"INSIVUMEH",mm:+r.precipitacion_24h_mm,time:insRain.consultado_utc,period:"24 h",location:"Guatemala"});
@@ -349,16 +354,18 @@ async function load(){
  const displayedRains=relevantRainInCycle(rains);
 
  levelLayer.clearLayers();rainLayer.clearLayers();upstreamLayer.clearLayers();forecastLayer.clearLayers();
- const alerts=[];let maxRain=null,maxLevel=-1,maxCombined=-1,shownRain=0;const levelCounts=[0,0,0,0];
+ const alerts=[];let maxRain=null,maxLevel=-1,maxCombined=-1,shownRain=0,missingRainGeo=0;const levelCounts=[0,0,0,0];
  for(const rr of displayedRains){
    const k=rainClass(rr.mm);
    if(k.level>=1 && (!maxRain||k.level>maxRain.level))maxRain=k;
    if(k.level<1)continue; // sólo muy fuertes o superiores
-   const p=coord(rr.name);
+   const p=rainCoord(rr);
    if(p){
      const marker=L.marker(p,{icon:rainDot(k),title:rr.name}).bindPopup(popupRain(rr,k));
      if(isChiapasOrGuatemala(rr))marker.addTo(upstreamLayer);else marker.addTo(rainLayer);
      shownRain++;
+   }else{
+     missingRainGeo++;
    }
    alerts.push({type:"Lluvia",name:rr.name,status:k.label,detail:`${fmt(rr.mm,1)} mm · ${rr.source} · ${rr.period}${rr.retained?" · REGISTRO CONSERVADO; no es lectura actual":""}`,priority:3+k.level});
  }
@@ -408,7 +415,7 @@ async function load(){
  document.getElementById("rainAlert").textContent=maxRain?"Precipitación relevante":"Sin lluvia ≥50 mm";
  document.getElementById("levelAlert").textContent=levelText(maxLevel);
  document.getElementById("combinedAlert").textContent=levelText(maxCombined);
- document.getElementById("rainDetail").textContent=shownRain+" puntos ≥50 mm en mapa";
+ document.getElementById("rainDetail").textContent=shownRain+" puntos ≥50 mm en mapa"+(missingRainGeo?" · "+missingRainGeo+" sin georreferencia":"");
  document.getElementById("levelDetail").textContent=maxLevel>=0?levelCounts[maxLevel]+" estación(es) en "+LEVEL_LABELS[maxLevel].toLowerCase()+" · "+(Array.isArray(levels)?levels.length:0)+" estaciones reportadas":"Sin condición evaluable · "+(Array.isArray(levels)?levels.length:0)+" estaciones reportadas";
  document.getElementById("combinedDetail").textContent="Nivel + tendencia + lluvia ≥50 mm";
 
