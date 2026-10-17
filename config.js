@@ -60,6 +60,9 @@ window.MAP_CONFIG={
     "San Joaquín":[17.52,-93.12],"Pueblo Nuevo":[17.80,-92.88],"Gaviotas":[17.98,-92.92],
     "Porvenir":[17.98,-92.91],"Macuspana":[17.76,-92.60],"Salto de Agua":[17.56,-92.33],
     "San Pedro":[17.80,-91.53],"Boca del Cerro":[17.43,-91.49],
+    // Referencias de localidad agregadas 2026-10-16; NO coordenadas instrumentales. Sustituir al tener las oficiales.
+    "El Muelle":[17.9935,-92.9185], // Malecón de Villahermosa sobre el río Grijalva.
+    "OBSERVATORIO DE VILLAHERMOSA":[17.9870,-92.9310], // Cabecera de Villahermosa.
     // Puntos de localidad únicamente; NO coordenadas instrumentales de CONAGUA.
     "HUIMANGUILLO (INIFAP)":[17.8292,-93.3917],
     "EMILIANO ZAPATA (CHABLE)":[17.744,-91.765],
@@ -70,13 +73,16 @@ window.MAP_CONFIG={
     "JUÁREZ PCIVILCHIAPAS":[17.604444,-93.195833], // Referencia: cabecera Juárez; NO coordenada instrumental WeatherLink.
     "AMATÁN PCIVILCHIAPAS":[17.35,-92.82],"PICHUCALCO PCIVILCHIAPAS":[17.51,-93.12],
     "CHAPULTENANGO PCIVILCHIAPAS":[17.33,-93.13],
-    "MAYA BERRIOZABAL PCIVILCHIAPAS":[16.800278,-93.272778], // INEGI: cabecera de Berriozábal, sólo referencia de localidad; NO coordenada instrumental WeatherLink."SALTO DE AGUA PCIVILCHIAPAS":[17.56,-92.33],
+    "MAYA BERRIOZABAL PCIVILCHIAPAS":[16.800278,-93.272778], // INEGI: cabecera de Berriozábal, sólo referencia de localidad; NO coordenada instrumental WeatherLink.
+    "SALTO DE AGUA PCIVILCHIAPAS":[17.56,-92.33],
     "PALENQUE PCIVILCHIAPAS":[17.51,-91.98],"NAISA 1":[16.52,-90.19],
     "LAS CRUCES 2 (PETEN)":[16.65,-90.18],"SAN FRANCISCO":[16.80,-89.94],
     "El Tigre":[16.611410,-90.655150],"El Porvenir":[16.519581,-90.483911],
     "Machaquilá":[16.393860,-89.444400],"San Pedro Mactún":[16.9729,-89.9147],
     "San Agustín Chixoy":[16.069835,-90.425616],"Playa Grande":[15.968061,-90.746611],
     "Playa Grande Met (Ixcan)":[15.968061,-90.746611],"Santa María Cahabón":[15.6056,-89.8125],
-    "Panzos PHC Altaverapaz":[15.3974,-89.64397]
+    "Panzos PHC Altaverapaz":[15.3974,-89.64397],
+    // INSIVUMEH: referencias de localidad (código INS17=Petén, INS16=Alta Verapaz); NO coordenadas instrumentales.
+    "Bethel":[16.8770,-90.4930],"Mactún":[16.9729,-89.9147],"Chixoy Hidro":[16.069835,-90.425616]
   }
 };

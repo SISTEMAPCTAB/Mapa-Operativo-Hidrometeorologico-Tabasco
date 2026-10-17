@@ -120,7 +120,6 @@ main{max-width:1500px;margin:auto;padding:14px}.summary{display:grid;grid-templa
   .topbar>div{flex:1 1 100%;width:100%;min-width:0}
   .topbar h1,.topbar #statusText{overflow-wrap:anywhere;word-break:normal}
   .topbar #statusText{font-size:.81rem;line-height:1.35}
-  .topbar #refreshBtn{flex:none;margin-left:auto;padding:8px 12px;font-size:.85rem}
   #map .leaflet-control-attribution{font-size:9px;padding:2px 4px;background:rgba(255,255,255,.88)}
 }
 

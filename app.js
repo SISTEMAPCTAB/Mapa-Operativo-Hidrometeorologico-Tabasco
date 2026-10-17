@@ -459,11 +459,11 @@ async function load(){
  document.getElementById("statusText").textContent="Datos consultados del Agente Hidrometeorológico · "+new Date().toLocaleString("es-MX");
  await renderForecast();
  }
-document.getElementById("refreshBtn").addEventListener("click",load);
 document.getElementById("showLevels").addEventListener("change",e=>e.target.checked?levelLayer.addTo(map):map.removeLayer(levelLayer));
 document.getElementById("showRain").addEventListener("change",e=>e.target.checked?rainLayer.addTo(map):map.removeLayer(rainLayer));
 document.getElementById("showUpstream").addEventListener("change",e=>e.target.checked?upstreamLayer.addTo(map):map.removeLayer(upstreamLayer));
 document.getElementById("forecastWindow").addEventListener("change",()=>{renderForecast();});
 setTimeout(()=>map.invalidateSize(true),250);window.addEventListener("resize",()=>map.invalidateSize(false));
 load();setInterval(load,15*60*1000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)load()});
 })();
