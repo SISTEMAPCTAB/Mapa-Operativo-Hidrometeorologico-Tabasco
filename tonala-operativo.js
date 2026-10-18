@@ -70,8 +70,10 @@ function draw(){
  for(const info of STATIONS){
   const w=snapshot.weather.find(x=>x.nombre===info.name);if(!w)continue;
   const valid=fresh(w.observed_utc),a=w.accumulations_mm||{},classification=valid?rainClass(a["24"]):null;
-  // Gota de lluvia sólo desde 50 mm; punto WL neutro para consultar estaciones bajo umbral.
-  const icon=classification?dropIcon(classification.n):referenceIcon();
+  // Igual que el resto del mapa: sólo gota de lluvia con dato reciente (≤3 h) y ≥50 mm en 24 h.
+  // Sin dato reciente o bajo el umbral no se dibuja marcador (antes: círculo blanco "WL").
+  if(!classification)continue;
+  const icon=dropIcon(classification.n);
   const hint=classification?classification.label:valid?"Estación de consulta · lluvia inferior a 50 mm":"Dato anterior";
   L.marker(info.at,{icon,title:info.name+" · WeatherLink"})
    .bindPopup('<div class="popup-title">'+esc(info.name)+' · WeatherLink</div><div class="popup-grid"><b>Localidad</b><span>'+esc(w.ubicacion||"s/d")+'</span><b>1 h</b><span>'+ (valid?fmt(a["1"],1)+" mm":"s/d")+'</span><b>6 h</b><span>'+(valid?fmt(a["6"],1)+" mm":"s/d")+'</span><b>24 h</b><span>'+(valid?(w.accumulation_status?.["24"]==="minimo_observado"?"≥ ":"")+fmt(a["24"],1)+" mm":"s/d")+'</span><b>Observación</b><span>'+date(w.observed_utc)+'</span><b>Estado</b><span>'+esc(hint)+'</span></div><p>'+esc(info.place)+'. Referencia regional, adscripción a la cuenca Tonalá no confirmada. No modifica el semáforo del río.</p>')
