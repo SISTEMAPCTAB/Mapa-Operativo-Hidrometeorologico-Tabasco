@@ -14,7 +14,7 @@
   <title>Mapa Operativo Hidrometeorológico · Tabasco</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="styles.css?v=43">
+  <link rel="stylesheet" href="styles.css?v=44">
 </head>
 <body>
   <header class="topbar">
@@ -71,8 +71,22 @@
       <aside id="forecastSummary" class="forecast-summary" aria-label="Resumen del pronóstico SMN"></aside>
       <aside class="map-overlay-legend" aria-label="Simbología del mapa">
         <div class="map-overlay-title">Simbología</div>
-        <div class="map-overlay-row"><span class="legend-drop"></span><span><b>Gota</b> = lluvia</span></div>
-        <div class="map-overlay-row"><span class="legend-triangle"></span><span><b>Triángulo</b> = nivel de río</span></div>
+        <div class="map-overlay-sub"><span class="legend-drop"></span><b>Gota = lluvia 24 h</b></div>
+        <div class="legend-grid">
+          <span class="legend-drop legend-sm" style="background:#f2d600"></span><span>Muy fuerte · 50–75 mm</span>
+          <span class="legend-drop legend-sm" style="background:#f28c00"></span><span>Intensa · 75–150 mm</span>
+          <span class="legend-drop legend-sm" style="background:#d62828"></span><span>Torrencial · 150–250 mm</span>
+          <span class="legend-drop legend-sm" style="background:#6a2ca0"></span><span>Extraordinaria · &gt;250 mm</span>
+        </div>
+        <div class="map-overlay-sub"><span class="legend-triangle"></span><b>Triángulo = nivel de río</b></div>
+        <div class="legend-grid">
+          <span class="legend-triangle legend-sm" style="border-bottom-color:#2d8a57"></span><span>Verde · sin condición relevante</span>
+          <span class="legend-triangle legend-sm" style="border-bottom-color:#e0b400"></span><span>Amarillo · en ascenso o a ≤0.50 m del crítico</span>
+          <span class="legend-triangle legend-sm" style="border-bottom-color:#e77922"></span><span>Naranja · nivel crítico, o cerca del crítico con ascenso rápido</span>
+          <span class="legend-triangle legend-sm" style="border-bottom-color:#c8343e"></span><span>Rojo · desbordamiento, o crítico con ascenso rápido</span>
+          <span class="legend-triangle legend-sm" style="border-bottom-color:#888"></span><span>Gris · sin dato</span>
+        </div>
+        <div class="map-overlay-note">Lluvia muy fuerte o mayor en la misma estación puede subir un color al nivel.</div>
         <div class="map-overlay-row"><span><b>Aguas arriba:</b> estaciones de Chiapas y Guatemala</span></div>
       </aside>
     </div>
