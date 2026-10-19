@@ -66,6 +66,8 @@ window.MAP_CONFIG={
     // Puntos de localidad únicamente; NO coordenadas instrumentales de CONAGUA.
     "HUIMANGUILLO (INIFAP)":[17.8292,-93.3917],
     "EMILIANO ZAPATA (CHABLE)":[17.744,-91.765],
+    // Nombres del boletín diario (estaciones automáticas); mismas referencias de localidad, NO instrumentales.
+    "EMILIANO ZAPATA CHABLÉ":[17.744,-91.765],"PTE TONALA":[18.205,-94.135],"PUENTE TONALÁ":[18.205,-94.135],
     "PEÑITAS":[17.45,-93.46],"PLATANAR":[17.91,-93.24],"SAMARIA":[18.05,-93.19],
     "MACUSPANA":[17.76,-92.60],"SALTO DE AGUA":[17.56,-92.33],"OXOLOTÁN":[17.38,-92.75],
     "TAPIJULAPA":[17.46,-92.78],"TEAPA":[17.55,-92.95],"PUYACATENGO":[17.55,-92.93],
