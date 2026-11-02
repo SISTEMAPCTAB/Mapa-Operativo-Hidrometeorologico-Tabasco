@@ -1,5 +1,5 @@
 /* PWA shell únicamente. Nunca almacena lluvia, niveles, pronóstico ni respuestas del Agente. */
-const CACHE="mapa-hidromet-shell-v2";
+const CACHE="mapa-hidromet-shell-v3";
 const SHELL=["./offline.html","./styles.css","./config.js","./app.js","./manifest.webmanifest","./icons/icon-192.png","./icons/icon-512.png","./icons/icon-maskable-512.png"];
 self.addEventListener("install",event=>{
   event.waitUntil((async()=>{

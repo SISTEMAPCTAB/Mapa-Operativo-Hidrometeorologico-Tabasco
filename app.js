@@ -326,7 +326,7 @@ async function load(){
    // Un reporte horario de un ciclo 08:00–08:00 anterior (p. ej. el de 18:00 de ayer,
    // antes de que llegue el de hoy) NO debe bloquear al boletín vigente de la misma estación.
    if(cycle08(r.fecha_hora)===currentCycle)seenConagua.add(key);else staleHourly.add(key);
-   rains.push({name:r.estacion,source:"CONAGUA · reporte horario",mm:+r.lluvia_24h_precedentes_mm,time:r.fecha_hora,period:"24 h precedentes",location:"Tabasco/Chiapas"});
+   rains.push({name:r.estacion,source:"CONAGUA · reporte horario",mm:+r.lluvia_24h_precedentes_mm,time:r.fecha_hora,period:"24 h precedentes",location:(C.hourlyChiapasStations||[]).some(x=>norm(x)===key)?"Chiapas":"Tabasco"});
  }
  const replaceStaleHourly=key=>{
    if(!staleHourly.has(key))return;

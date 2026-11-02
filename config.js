@@ -22,6 +22,10 @@ window.MAP_CONFIG={
     {min:0,level:0,label:"Menor a muy fuerte",color:"#9aa0a6"}
   ],
   rainDisplayMinMm:50,
+  // Estaciones del reporte horario CONAGUA ubicadas en Chiapas (capa "Aguas arriba").
+  // Las no listadas se tratan como Tabasco; antes todo el reporte se marcaba "Tabasco/Chiapas"
+  // y Teapa/Puyacatengo caían en la capa de Chiapas/Guatemala.
+  hourlyChiapasStations:["PEÑITAS","TAPILULA","PANTELHO","SUNUAPA","CHAPULTENANGO","SAN PEDRO NICHTACULUM","PLAYA DE CATAZAJA (EL CUYO)"],
   // Claves del boletín OCFS Frontera Sur (FUENTE1) → nombre de estación del mapa.
   fronteraSurCodes:{AFT2:"Puyacatengo",AFT3:"San Joaquín",AFT4:"Pueblo Nuevo",AFT5:"Gaviotas",AFT6:"El Muelle",AFT7:"Porvenir",AFT8:"Samaria",AFT12:"Salto de Agua",AFT13:"Macuspana",AFT14:"Oxolotán"},
   conaguaSubbasinsService:"https://sigagis.conagua.gob.mx/ArcGIS/rest/services/LocREPDA/MapServer/18/query",
