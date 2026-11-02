@@ -4,28 +4,28 @@
   "lluvia_mm_24h": [
     {
       "categoria": "fuerte",
-      "min": 25,
-      "max": 50
+      "min_exclusivo": 25.0,
+      "max_inclusivo": 50.0
     },
     {
       "categoria": "muy_fuerte",
-      "min": 50,
-      "max": 75
+      "min_exclusivo": 50.0,
+      "max_inclusivo": 75.0
     },
     {
       "categoria": "intensa",
-      "min": 75,
-      "max": 150
+      "min_exclusivo": 75.0,
+      "max_inclusivo": 150.0
     },
     {
       "categoria": "torrencial",
-      "min": 150,
-      "max": 250
+      "min_exclusivo": 150.0,
+      "max_inclusivo": 250.0
     },
     {
       "categoria": "extraordinaria",
-      "min": 250,
-      "max": null
+      "min_exclusivo": 250.0,
+      "max_inclusivo": null
     }
   ],
   "nivel": {
@@ -37,5 +37,6 @@
     "ascenso_relevante": "Δ24h >= 0.50 m o Δreporte >= 0.15 m",
     "ascenso_rapido": "Δ24h >= 1.00 m o Δreporte >= 0.30 m",
     "regla_combinada": "lluvia intensa o mayor + río en alerta/ascenso incrementa un nivel preventivo"
-  }
+  },
+  "lluvia_escala_fuente": "Servicio Meteorológico Nacional (SMN-CONAGUA): 25.1–50.0 fuerte; 50.1–75.0 muy fuerte; 75.1–150.0 intensa; 150.1–250.0 torrencial; >250.0 extraordinaria. El límite superior pertenece a la categoría inferior."
 }

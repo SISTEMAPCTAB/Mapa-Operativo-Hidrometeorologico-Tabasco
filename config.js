@@ -14,6 +14,8 @@ window.MAP_CONFIG={
     forecastMapping:"data/pronostico-smn-subcuencas.json",
     forecastGeojson:"data/subcuencas-smn.geojson"
   },
+  // Escala SMN (fuente: Servicio Meteorológico Nacional): min es límite EXCLUSIVO.
+  // Muy fuerte 50.1–75.0 · Intensa 75.1–150.0 · Torrencial 150.1–250.0 · Extraordinaria >250.0
   rainThresholds:[
     {min:250,level:4,label:"Extraordinaria",color:"#6a2ca0"},
     {min:150,level:3,label:"Torrencial",color:"#d62828"},

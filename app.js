@@ -41,7 +41,7 @@ function relevantRainInCycle(rains){
  if(rainMemory.cycle!==cycle)rainMemory={cycle,items:{}};
  const live=new Set();
  for(const r of rains){
-   if(!/CONAGUA/.test(r.source||"")||!finite(r.mm)||Number(r.mm)<50)continue;
+   if(!/CONAGUA/.test(r.source||"")||!finite(r.mm)||Number(r.mm)<=50)continue;
    const sampleCycle=cycle08(r.time);
    // No utilizar boletines de ciclos anteriores ni informes con fecha futura.
    if(sampleCycle!==cycle)continue;
@@ -56,7 +56,7 @@ function relevantRainInCycle(rains){
  const retained=Object.entries(rainMemory.items).filter(([id,r])=>r.cycle===cycle&&!live.has(id)||r.cycle===cycle&&r.retained)
    .map(([id,r])=>({...r,retained:true,period:"máximo 24 h reportado en ciclo 08:00–08:00",latestMm:r.latestMm}));
  const selected=rains.filter(r=>{
-   if(!/CONAGUA/.test(r.source||"")||!finite(r.mm)||r.mm<50)return true;
+   if(!/CONAGUA/.test(r.source||"")||!finite(r.mm)||r.mm<=50)return true;
    return cycle08(r.time)===cycle&&!rainMemory.items[norm(r.source.includes("reporte horario")?"reporte:"+r.name:"boletin:"+r.name)]?.retained;
  });
  return [...selected,...retained];
@@ -83,7 +83,8 @@ function rainCoord(r){
 function rainClass(mm){
   if(!finite(mm))return{level:-1,label:"Sin dato",color:"#888"};
   const x=Number(mm);
-  return C.rainThresholds.find(r=>x>=r.min)||C.rainThresholds.at(-1);
+  // Escala SMN: límites superiores incluidos en la categoría inferior (50.0 = fuerte; 50.1 = muy fuerte).
+  return C.rainThresholds.find(r=>r.min===0?x>=0:x>r.min)||C.rainThresholds.at(-1);
 }
 function levelDot(level){
   const c=level<0?"gray":LEVEL_COLORS[Math.min(3,level)];
@@ -95,9 +96,9 @@ function rainDot(k){
 function forecastColor(min,max){
   const v=finite(max)?Number(max):finite(min)?Number(min):0;
   if(v>250)return "#6a2ca0";
-  if(v>=150)return "#d62828";
-  if(v>=75)return "#f28c00";
-  if(v>=50)return "#f2d600";
+  if(v>150)return "#d62828";
+  if(v>75)return "#f28c00";
+  if(v>50)return "#f2d600";
   return "#61c9a8";
 }
 function forecastLabel(min,max){
@@ -159,7 +160,7 @@ async function renderForecast(){
     const cfg=C.forecastBasins?.[name];
     if(!cfg)continue;
     const min=Number(val?.min_mm),max=Number(val?.max_mm);
-    if(!Number.isFinite(max)||max<50)continue;
+    if(!Number.isFinite(max)||max<=50)continue;
 
     const color=forecastColor(min,max);
     const layer=geojsonZoneLayer(name,color);
@@ -202,7 +203,7 @@ async function renderForecast(){
     box.innerHTML=summary.length
       ? header+
         summary.map(x=>`<div class="forecast-summary-row"><span class="forecast-swatch" style="background:${x.color}"></span><span><b>${esc(x.name)}</b> · ${forecastLabel(x.min,x.max)} <small>· ${esc(x.detail)}</small></span></div>`).join("")
-      : header+`<div class="forecast-summary-empty">Sin rangos ≥50 mm en esta ventana.</div>`;
+      : header+`<div class="forecast-summary-empty">Sin rangos &gt;50 mm en esta ventana.</div>`;
   }
 
   const s=document.getElementById("statusText");
@@ -344,7 +345,7 @@ async function load(){
  }
  // Boletín OCFS Frontera Sur (FUENTE1): sólo estaciones no representadas ya por CONAGUA vigente.
  // Las claves AFT (Tabasco) se traducen al nombre de estación usado en el mapa para georreferenciar
- // y evitar duplicados; las demás se listan en alertas y se cuentan "sin georreferencia" si ≥50 mm.
+ // y evitar duplicados; las demás se listan en alertas y se cuentan "sin georreferencia" si >50 mm.
  const frontera=Array.isArray(climaCon?.frontera_sur)?climaCon.frontera_sur:[];
  const latestFrontera=frontera.map(r=>Date.parse(r.fecha_hora_mensaje||"")).filter(Number.isFinite).reduce((a,b)=>Math.max(a,b),0);
  for(const r of frontera){
@@ -435,12 +436,12 @@ async function load(){
  alerts.push(...insRainRows(insRain),...insLevelRows(insLevels));
 
  const levelText=x=>x<0?"Sin dato":LEVEL_LABELS[x];
- document.getElementById("rainAlert").textContent=maxRain?"Precipitación relevante":"Sin lluvia ≥50 mm";
+ document.getElementById("rainAlert").textContent=maxRain?"Precipitación relevante":"Sin lluvia >50 mm";
  document.getElementById("levelAlert").textContent=levelText(maxLevel);
  document.getElementById("combinedAlert").textContent=levelText(maxCombined);
- document.getElementById("rainDetail").textContent=shownRain+" puntos ≥50 mm en mapa"+(missingRainGeo?" · "+missingRainGeo+" sin georreferencia":"");
+ document.getElementById("rainDetail").textContent=shownRain+" puntos >50 mm en mapa"+(missingRainGeo?" · "+missingRainGeo+" sin georreferencia":"");
  document.getElementById("levelDetail").textContent=maxLevel>=0?levelCounts[maxLevel]+" estación(es) en "+LEVEL_LABELS[maxLevel].toLowerCase()+" · "+(Array.isArray(levels)?levels.length:0)+" estaciones reportadas":"Sin condición evaluable · "+(Array.isArray(levels)?levels.length:0)+" estaciones reportadas";
- document.getElementById("combinedDetail").textContent="Nivel + tendencia + lluvia ≥50 mm";
+ document.getElementById("combinedDetail").textContent="Nivel + tendencia + lluvia >50 mm";
 
  // Orden de lectura: misma secuencia de sistemas que el Agente de Monitoreo.
  // Dentro de cada sistema: lluvia asociada y después nivel del río.
