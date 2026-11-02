@@ -315,23 +315,46 @@ async function load(){
  latestForecastData=publicSources;
  forecastMapping=mapping;
  forecastGeojson=geojson;
- const off=parseOfficial(f1),rains=[],seenConagua=new Set();
+ const off=parseOfficial(f1),rains=[],seenConagua=new Set(),staleHourly=new Set(),currentCycle=cycle08();
  // Mantener exactamente el periodo del resumen del Agente: 24 h precedentes,
  // NO la columna "hoy desde 08:00" (que se reinicia a cero cada mañana).
  for(const r of Array.isArray(rainCon)?rainCon:[]){
    if(r.estado_24h!=="observado"||!finite(r.lluvia_24h_precedentes_mm)||Number(r.lluvia_24h_precedentes_mm)<0)continue;
    // La lectura Peñitas >150 mm o advertida se excluye igual que en el Agente.
    if(norm(r.estacion)==="penitas"&&(Number(r.lluvia_24h_precedentes_mm)>150||r.advertencia))continue;
-   const key=norm(r.estacion);seenConagua.add(key);
+   const key=norm(r.estacion);
+   // Un reporte horario de un ciclo 08:00–08:00 anterior (p. ej. el de 18:00 de ayer,
+   // antes de que llegue el de hoy) NO debe bloquear al boletín vigente de la misma estación.
+   if(cycle08(r.fecha_hora)===currentCycle)seenConagua.add(key);else staleHourly.add(key);
    rains.push({name:r.estacion,source:"CONAGUA · reporte horario",mm:+r.lluvia_24h_precedentes_mm,time:r.fecha_hora,period:"24 h precedentes",location:"Tabasco/Chiapas"});
  }
+ const replaceStaleHourly=key=>{
+   if(!staleHourly.has(key))return;
+   for(let i=rains.length-1;i>=0;i--)if(rains[i].source==="CONAGUA · reporte horario"&&norm(rains[i].name)===key)rains.splice(i,1);
+   staleHourly.delete(key);
+ };
  // Complemento de boletín OCFS/CONAGUA Tabasco, sin duplicar el reporte horario.
  const boletin=Array.isArray(climaCon?.conagua_tabasco)?climaCon.conagua_tabasco:[];
  const latestBulletin=boletin.map(r=>Date.parse(r.fecha_hora_mensaje||"")).filter(Number.isFinite).reduce((a,b)=>Math.max(a,b),0);
  for(const r of boletin){
    if(r.estado_dato!=="observado"||!finite(r.lluvia_24h_mm)||Number(r.lluvia_24h_mm)<0)continue;
    if(Date.parse(r.fecha_hora_mensaje||"")!==latestBulletin||seenConagua.has(norm(r.estacion)))continue;
+   replaceStaleHourly(norm(r.estacion));seenConagua.add(norm(r.estacion));
    rains.push({name:r.estacion,source:"CONAGUA Tabasco · boletín",mm:+r.lluvia_24h_mm,time:r.fecha_hora_mensaje,period:"24 h del boletín",location:"Tabasco"});
+ }
+ // Boletín OCFS Frontera Sur (FUENTE1): sólo estaciones no representadas ya por CONAGUA vigente.
+ // Las claves AFT (Tabasco) se traducen al nombre de estación usado en el mapa para georreferenciar
+ // y evitar duplicados; las demás se listan en alertas y se cuentan "sin georreferencia" si ≥50 mm.
+ const frontera=Array.isArray(climaCon?.frontera_sur)?climaCon.frontera_sur:[];
+ const latestFrontera=frontera.map(r=>Date.parse(r.fecha_hora_mensaje||"")).filter(Number.isFinite).reduce((a,b)=>Math.max(a,b),0);
+ for(const r of frontera){
+   if(r.estado_dato!=="observado"||!finite(r.lluvia_24h_mm)||Number(r.lluvia_24h_mm)<0)continue;
+   if(Date.parse(r.fecha_hora_mensaje||"")!==latestFrontera)continue;
+   const name=C.fronteraSurCodes?.[String(r.codigo||"").toUpperCase()]||String(r.estacion||"").trim();
+   const key=norm(name);
+   if(!name||seenConagua.has(key))continue;
+   replaceStaleHourly(key);seenConagua.add(key);
+   rains.push({name,source:"CONAGUA OCFS Frontera Sur · boletín",mm:+r.lluvia_24h_mm,time:r.fecha_hora_mensaje,period:"24 h del boletín",location:/^AFT/i.test(r.codigo||"")?"Tabasco":"Chiapas"});
  }
  // SIH independiente: sólo estaciones no representadas por CONAGUA actual.
  const occupied=new Set(rains.filter(x=>/CONAGUA/.test(x.source)).map(x=>norm(x.name).replace(/\s*\([^)]*\)/g,"")));
@@ -361,7 +384,7 @@ async function load(){
    if(k.level<1)continue; // sólo muy fuertes o superiores
    const p=rainCoord(rr);
    if(p){
-     const marker=L.marker(p,{icon:rainDot(k),title:rr.name}).bindPopup(popupRain(rr,k));
+     const marker=L.marker(p,{icon:rainDot(k),title:rr.name,zIndexOffset:1000}).bindPopup(popupRain(rr,k));
      if(isChiapasOrGuatemala(rr))marker.addTo(upstreamLayer);else marker.addTo(rainLayer);
      shownRain++;
    }else{

@@ -22,6 +22,8 @@ window.MAP_CONFIG={
     {min:0,level:0,label:"Menor a muy fuerte",color:"#9aa0a6"}
   ],
   rainDisplayMinMm:50,
+  // Claves del boletín OCFS Frontera Sur (FUENTE1) → nombre de estación del mapa.
+  fronteraSurCodes:{AFT2:"Puyacatengo",AFT3:"San Joaquín",AFT4:"Pueblo Nuevo",AFT5:"Gaviotas",AFT6:"El Muelle",AFT7:"Porvenir",AFT8:"Samaria",AFT12:"Salto de Agua",AFT13:"Macuspana",AFT14:"Oxolotán"},
   conaguaSubbasinsService:"https://sigagis.conagua.gob.mx/ArcGIS/rest/services/LocREPDA/MapServer/18/query",
   forecastBasins:{
     "Peñitas":{
