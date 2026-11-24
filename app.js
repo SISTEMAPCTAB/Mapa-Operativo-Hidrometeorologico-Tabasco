@@ -14,7 +14,7 @@ const levelLayer=L.layerGroup().addTo(map),rainLayer=L.layerGroup().addTo(map),u
 // Retención de eventos de lluvia relevante (no suma acumulados móviles).
 // Ciclo operativo local: 08:00 de un día a 08:00 del siguiente.
 // Memoria persistida por navegador; la fuente oficial siempre conserva prioridad.
-const RAIN_MEMORY_KEY="mapa-lluvia-relevante-08-v1";
+const RAIN_MEMORY_KEY="mapa-lluvia-relevante-08-v2";
 let rainMemory={cycle:"",items:{}};
 function cycle08(value){
  const date=value?new Date(value):new Date();
@@ -45,7 +45,7 @@ function relevantRainInCycle(rains){
    const sampleCycle=cycle08(r.time);
    // No utilizar boletines de ciclos anteriores ni informes con fecha futura.
    if(sampleCycle!==cycle)continue;
-   const id=norm(r.source.includes("reporte horario")?"reporte:"+r.name:"boletin:"+r.name);
+   const id=norm(r.name);
    live.add(id);
    const saved=rainMemory.items[id];
    if(!saved||Number(r.mm)>saved.mm)rainMemory.items[id]={...r,cycle,retained:false};
@@ -57,7 +57,7 @@ function relevantRainInCycle(rains){
    .map(([id,r])=>({...r,retained:true,period:"máximo 24 h reportado en ciclo 08:00–08:00",latestMm:r.latestMm}));
  const selected=rains.filter(r=>{
    if(!/CONAGUA/.test(r.source||"")||!finite(r.mm)||r.mm<=50)return true;
-   return cycle08(r.time)===cycle&&!rainMemory.items[norm(r.source.includes("reporte horario")?"reporte:"+r.name:"boletin:"+r.name)]?.retained;
+   return cycle08(r.time)===cycle&&!rainMemory.items[norm(r.name)]?.retained;
  });
  return [...selected,...retained];
 }
@@ -339,8 +339,16 @@ async function load(){
  const latestBulletin=boletin.map(r=>Date.parse(r.fecha_hora_mensaje||"")).filter(Number.isFinite).reduce((a,b)=>Math.max(a,b),0);
  for(const r of boletin){
    if(r.estado_dato!=="observado"||!finite(r.lluvia_24h_mm)||Number(r.lluvia_24h_mm)<0)continue;
-   if(Date.parse(r.fecha_hora_mensaje||"")!==latestBulletin||seenConagua.has(norm(r.estacion)))continue;
-   replaceStaleHourly(norm(r.estacion));seenConagua.add(norm(r.estacion));
+   if(Date.parse(r.fecha_hora_mensaje||"")!==latestBulletin)continue;
+   const key=norm(r.estacion);
+   const previous=rains.find(x=>/CONAGUA/.test(x.source)&&norm(x.name)===key);
+   if(previous&&(Date.parse(previous.time)||0)>=Date.parse(r.fecha_hora_mensaje))continue;
+   if(previous){
+     // Preserve a higher valid reading from this cycle before replacing the current observation.
+     if(cycle08(previous.time)===currentCycle&&previous.mm>50)relevantRainInCycle([previous]);
+     rains.splice(rains.indexOf(previous),1);
+   }
+   replaceStaleHourly(key);seenConagua.add(key);
    rains.push({name:r.estacion,source:"CONAGUA Tabasco · boletín",mm:+r.lluvia_24h_mm,time:r.fecha_hora_mensaje,period:"24 h del boletín",location:"Tabasco"});
  }
  // Boletín OCFS Frontera Sur (FUENTE1): sólo estaciones no representadas ya por CONAGUA vigente.
@@ -432,8 +440,8 @@ async function load(){
    </div>`;
    L.marker(p,{icon:levelDot(sev),title:r.estacion+" · INSIVUMEH"}).bindPopup(html).addTo(upstreamLayer);
  }
- // Guatemala: conservar en el cuadro inferior todas las estaciones INSIVUMEH que sí reportan lluvia o nivel.
- alerts.push(...insRainRows(insRain),...insLevelRows(insLevels));
+ // Guatemala: las lluvias >50 mm ya se incorporaron al listado general; conservar los niveles.
+ alerts.push(...insLevelRows(insLevels));
 
  const levelText=x=>x<0?"Sin dato":LEVEL_LABELS[x];
  document.getElementById("rainAlert").textContent=maxRain?"Precipitación relevante":"Sin lluvia >50 mm";
