@@ -11,6 +11,32 @@ map.createPane("forecastPane");
 map.getPane("forecastPane").style.zIndex=450;
 map.getPane("forecastPane").style.pointerEvents="auto";
 const levelLayer=L.layerGroup().addTo(map),rainLayer=L.layerGroup().addTo(map),upstreamLayer=L.layerGroup().addTo(map),forecastLayer=L.layerGroup().addTo(map);
+ // Combine only visible, visually overlapping observation markers at the current zoom.
+ function bindObservationPopup(marker,html){
+   marker._observationPopup=html;
+   marker.bindPopup(function(){
+     const origin=marker.getElement();
+     if(!origin)return html;
+     const a=origin.getBoundingClientRect();
+     const matches=[marker];
+     for(const group of [levelLayer,rainLayer,upstreamLayer]){
+       if(!map.hasLayer(group))continue;
+       group.eachLayer(other=>{
+         if(other===marker||!other._observationPopup||!map.hasLayer(other))return;
+         const el=other.getElement();
+         if(!el)return;
+         const b=el.getBoundingClientRect();
+         if(a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top)matches.push(other);
+       });
+     }
+     if(matches.length===1)return html;
+     return '<div class="popup-title">Observaciones coincidentes ('+matches.length+')</div>'+matches.map(m=>m._observationPopup).join('<hr style="margin:12px 0;border:0;border-top:1px solid #ccc">');
+   },{maxHeight:320,maxWidth:320});
+   return marker;
+ }
+ map.on("zoomstart",()=>map.closePopup());
+ map.on("overlayremove layerremove",e=>{if([levelLayer,rainLayer,upstreamLayer].includes(e.layer))map.closePopup();});
+
 // Retención de eventos de lluvia relevante (no suma acumulados móviles).
 // Ciclo operativo local: 08:00 de un día a 08:00 del siguiente.
 // Memoria persistida por navegador; la fuente oficial siempre conserva prioridad.
@@ -393,7 +419,7 @@ async function load(){
    if(k.level<1)continue; // sólo muy fuertes o superiores
    const p=rainCoord(rr);
    if(p){
-     const marker=L.marker(p,{icon:rainDot(k),title:rr.name,zIndexOffset:1000}).bindPopup(popupRain(rr,k));
+     const marker=bindObservationPopup(L.marker(p,{icon:rainDot(k),title:rr.name,zIndexOffset:1000}),popupRain(rr,k));
      if(isChiapasOrGuatemala(rr))marker.addTo(upstreamLayer);else marker.addTo(rainLayer);
      shownRain++;
    }else{
@@ -406,7 +432,7 @@ async function load(){
    const ls=levelSeverity(r,off.get(norm(r.estacion))),near=stationRainForLevel(r,rains),cs=combined(ls,near);
    maxLevel=Math.max(maxLevel,ls.level);maxCombined=Math.max(maxCombined,cs.level);
    if(ls.level>=0&&ls.level<levelCounts.length)levelCounts[ls.level]++;
-   L.marker(p,{icon:levelDot(cs.level),title:r.estacion}).bindPopup(popupLevel(r,off.get(norm(r.estacion)),cs,near)).addTo(levelLayer);
+   bindObservationPopup(L.marker(p,{icon:levelDot(cs.level),title:r.estacion}),popupLevel(r,off.get(norm(r.estacion)),cs,near)).addTo(levelLayer);
    if(cs.level>=1)alerts.push({type:"Río",name:r.estacion,river:riverForStation(r),status:LEVEL_LABELS[cs.level],detail:"Nivel "+fmt(r.ultimo_nivel)+" m · NAMO: "+namoDistanceText(r.distancia_namo)+" · "+(cs.reasons.join(" · ")||"seguimiento"),priority:5+cs.level});
  }
 
@@ -438,7 +464,7 @@ async function load(){
      <b>Dato</b><span>${esc(r.ultima_observacion_fuente||"s/d")}</span>
      <b>Nota</b><span>Ubicación geográfica referencial; la referencia máxima no equivale a umbral de inundación.</span>
    </div>`;
-   L.marker(p,{icon:levelDot(sev),title:r.estacion+" · INSIVUMEH"}).bindPopup(html).addTo(upstreamLayer);
+   bindObservationPopup(L.marker(p,{icon:levelDot(sev),title:r.estacion+" · INSIVUMEH"}),html).addTo(upstreamLayer);
  }
  // Guatemala: las lluvias >50 mm ya se incorporaron al listado general; conservar los niveles.
  alerts.push(...insLevelRows(insLevels));
