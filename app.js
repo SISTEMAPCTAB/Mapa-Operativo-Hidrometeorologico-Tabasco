@@ -1,7 +1,9 @@
 (()=>{"use strict";
 const C=window.MAP_CONFIG;
 const LEVEL_COLORS=["green","yellow","orange","red"], LEVEL_LABELS=["Verde","Amarillo","Naranja","Rojo"];
-const map=L.map("map",{zoomControl:true}).setView([17.70,-92.65],8);
+// Limitar navegación a las cuencas de interés, con margen para la vista móvil.
+const operationalBounds=L.latLngBounds([14.0,-96.0],[20.5,-88.0]);
+const map=L.map("map",{zoomControl:true,minZoom:7,maxBounds:operationalBounds,maxBoundsViscosity:1.0}).setView([17.70,-92.65],8);
 // Exposición mínima para la capa Tonalá; los cálculos existentes no se modifican.
 window.TONALA_MAP=map;
 window.dispatchEvent(new Event("tonala-map-ready"));
